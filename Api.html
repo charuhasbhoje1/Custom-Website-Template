@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="css/bootstrap.css">
+    <link rel="stylesheet" href="css/style.css">
+    <title>Movie Finder TMDB</title>
+    <style type="text/css">
+      .backdrop {
+        margin-top: 20px;
+        margin-bottom: 60px;
+        margin-right: 20px;
+        text-align: center;
+    }
+    .backdrop img {
+        width: 150%;
+        max-height:auto;
+        object-fit: cover;
+        border-radius: 10px;
+    }
+    body{
+        background-image:url('https://picsum.photos');
+        background-repeat: no-repeat;
+    }
+    </style>
+</head>
+<body>
+    <div class="jumbotron jumbotron-main">
+        <nav class="navbar">
+      
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="index.html">My Project</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+          <ul class="nav navbar-nav navbar-right">
+            <li class="active"><a href="index.html">Home</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="services.html">Features</a></li>
+            <li><a href="contact.html">Contact</a></li>
+            <li><a href="Api.html">API</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+    <div class="container">
+        <h2>Enter the Movie Name You Want the Details of:</h2>
+        <form id="movieForm">
+            <div class="form-group">
+                <input type="text" id="moviename" class="form-control" placeholder="Type a movie name">
+            </div>
+        </form>
+        <div id="movie" class="mt-4"></div>
+    </div>
+
+    <script type="text/javascript">
+        function getMovie(e) {
+            e.preventDefault();
+            console.log('Fetching...');
+
+            var moviename = document.getElementById('moviename').value.trim();
+            if (!moviename) {
+                document.getElementById('movie').innerHTML = '<div class="alert alert-danger">Please enter a movie name!</div>';
+                return;
+            }
+
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function () {
+                if (xhttp.readyState === 4 && xhttp.status === 200) {
+                    var data = JSON.parse(xhttp.responseText);
+
+                    if (data.results.length === 0) {
+                        document.getElementById('movie').innerHTML = '<div class="alert alert-warning">No results found for the movie.</div>';
+                        return;
+                    }
+
+                    var movie = data.results[0]; // Use the first result
+                    var posterUrl = `https://image.tmdb.org/t/p/w500${movie.poster_path}`;
+                    var backdropUrl=`https://image.tmdb.org/t/p/w1280${movie.backdrop_path}`;
+
+                    document.getElementById('movie').innerHTML = `
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h3 class="panel-title">${movie.original_title}</h3>
+                            </div>
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <img src="${posterUrl}" alt="${movie.original_title}" class="img-responsive">
+                                    </div>
+                                    <div class="col-md-7">
+                                        <p><strong>Release Date:</strong> ${movie.release_date}</p>
+                                        <p><strong>Overview:</strong> ${movie.overview}</p>
+                                    <div class="col-md-7">
+                                        <p><strong>Average Rating</strong> ${movie.vote_average}</p>
+                                     <div class="backdrop">
+                                     <img src="${backdropUrl}" alt="Backdrop Image" class="img-fluid">
+                                    </div>
+                                     </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+            };
+
+            xhttp.open('GET', `https://api.themoviedb.org/3/search/movie?api_key=0153f858a1e026dcfb5828d62aaac67a&query=${moviename}`, true);
+            xhttp.send();
+        }
+
+        document.getElementById('movieForm').addEventListener('submit', getMovie, false);
+    </script>
+</body>
+
+</html>
